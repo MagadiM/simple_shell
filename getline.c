@@ -1,143 +1,96 @@
 #include "shell.h"
 
-void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size);
-void assign_lineptr(char **lineptr, size_t *n, char *buffer, size_t b);
-ssize_t _getline(char **lineptr, size_t *n, FILE *stream);
-
 /**
- * _realloc - Reallocates a memory block using malloc and free.
- * @ptr: A pointer to the memory previously allocated.
- * @old_size: The size in bytes of the allocated space for ptr.
- * @new_size: The size in bytes for the new memory block.
- *
- * Return: If new_size == old_size - ptr.
- *         If new_size == 0 and ptr is not NULL - NULL.
- *         Otherwise - a pointer to the reallocated memory block.
- */
-void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size)
+* _getline - read one line from the prompt.
+* @data: struct for the program's data
+*
+* Return: reading counting bytes.
+*/
+int _getline(data_of_program *data)
 {
-	void *mem;
-	char *ptr_copy, *filler;
-	unsigned int index;
+	char buff[BUFFER_SIZE] = {'\0'};
+	static char *array_commands[10] = {NULL};
+	static char array_operators[10] = {'\0'};
+	ssize_t bytes_read, i = 0;
 
-	if (new_size == old_size)
-		return (ptr);
-
-	if (ptr == NULL)
+	/* check if doesnot exist more commands in the array */
+	/* and checks the logical operators */
+	if (!array_commands[0] || (array_operators[0] == '&' && errno != 0) ||
+		(array_operators[0] == '|' && errno == 0))
 	{
-		mem = malloc(new_size);
-		if (mem == NULL)
-			return (NULL);
-
-		return (mem);
-	}
-
-	if (new_size == 0 && ptr != NULL)
-	{
-		free(ptr);
-		return (NULL);
-	}
-
-	ptr_copy = ptr;
-	mem = malloc(sizeof(*ptr_copy) * new_size);
-	if (mem == NULL)
-	{
-		free(ptr);
-		return (NULL);
-	}
-
-	filler = mem;
-
-	for (index = 0; index < old_size && index < new_size; index++)
-		filler[index] = *ptr_copy++;
-
-	free(ptr);
-	return (mem);
-}
-
-/**
- * assign_lineptr - Reassigns the lineptr variable for _getline.
- * @lineptr: A buffer to store an input string.
- * @n: The size of lineptr.
- * @buffer: The string to assign to lineptr.
- * @b: The size of buffer.
- */
-void assign_lineptr(char **lineptr, size_t *n, char *buffer, size_t b)
-{
-	if (*lineptr == NULL)
-	{
-		if (b > 120)
-			*n = b;
-		else
-			*n = 120;
-		*lineptr = buffer;
-	}
-	else if (*n < b)
-	{
-		if (b > 120)
-			*n = b;
-		else
-			*n = 120;
-		*lineptr = buffer;
-	}
-	else
-	{
-		_strcpy(*lineptr, buffer);
-		free(buffer);
-	}
-}
-
-/**
- * _getline - Reads input from a stream.
- * @lineptr: A buffer to store the input.
- * @n: The size of lineptr.
- * @stream: The stream to read from.
- *
- * Return: The number of bytes read.
- */
-ssize_t _getline(char **lineptr, size_t *n, FILE *stream)
-{
-	static ssize_t input;
-	ssize_t ret;
-	char c = 'x', *buffer;
-	int r;
-
-	if (input == 0)
-		fflush(stream);
-	else
-		return (-1);
-	input = 0;
-
-	buffer = malloc(sizeof(char) * 120);
-	if (!buffer)
-		return (-1);
-
-	while (c != '\n')
-	{
-		r = read(STDIN_FILENO, &c, 1);
-		if (r == -1 || (r == 0 && input == 0))
+		/*free the memory allocated in the array if it exists */
+		for (i = 0; array_commands[i]; i++)
 		{
-			free(buffer);
+			free(array_commands[i]);
+			array_commands[i] = NULL;
+		}
+
+		/* read from the file descriptor int to buff */
+		bytes_read = read(data->file_descriptor, &buff, BUFFER_SIZE - 1);
+		if (bytes_read == 0)
 			return (-1);
-		}
-		if (r == 0 && input != 0)
-		{
-			input++;
-			break;
-		}
 
-		if (input >= 120)
-			buffer = _realloc(buffer, input, input + 1);
-
-		buffer[input] = c;
-		input++;
+		/* split lines for \n or ; */
+		i = 0;
+		do {
+			array_commands[i] = str_duplicate(_strtok(i ? NULL : buff, "\n;"));
+			/*checks and split for && and || operators*/
+			i = check_logic_ops(array_commands, i, array_operators);
+		} while (array_commands[i++]);
 	}
-	buffer[input] = '\0';
 
-	assign_lineptr(lineptr, n, buffer, input);
+	/*obtains the next command (command 0) and remove it for the array*/
+	data->input_line = array_commands[0];
+	for (i = 0; array_commands[i]; i++)
+	{
+		array_commands[i] = array_commands[i + 1];
+		array_operators[i] = array_operators[i + 1];
+	}
 
-	ret = input;
-	if (r != 0)
-		input = 0;
-	return (ret);
+	return (str_length(data->input_line));
+}
+
+
+/**
+* check_logic_ops - checks and split for && and || operators
+* @array_commands: array of the commands.
+* @i: index in the array_commands to be checked
+* @array_operators: array of the logical operators for each previous command
+*
+* Return: index of the last command in the array_commands.
+*/
+int check_logic_ops(char *array_commands[], int i, char array_operators[])
+{
+	char *temp = NULL;
+	int j;
+
+	/* checks for the & char in the command line*/
+	for (j = 0; array_commands[i] != NULL  && array_commands[i][j]; j++)
+	{
+		if (array_commands[i][j] == '&' && array_commands[i][j + 1] == '&')
+		{
+			/* split the line when chars && was found */
+			temp = array_commands[i];
+			array_commands[i][j] = '\0';
+			array_commands[i] = str_duplicate(array_commands[i]);
+			array_commands[i + 1] = str_duplicate(temp + j + 2);
+			i++;
+			array_operators[i] = '&';
+			free(temp);
+			j = 0;
+		}
+		if (array_commands[i][j] == '|' && array_commands[i][j + 1] == '|')
+		{
+			/* split the line when chars || was found */
+			temp = array_commands[i];
+			array_commands[i][j] = '\0';
+			array_commands[i] = str_duplicate(array_commands[i]);
+			array_commands[i + 1] = str_duplicate(temp + j + 2);
+			i++;
+			array_operators[i] = '|';
+			free(temp);
+			j = 0;
+		}
+	}
+	return (i);
 }
