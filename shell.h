@@ -12,11 +12,6 @@
 #include <time.h>
 #include <stdbool.h>
 
-void print_prompt1(void);
-void print_prompt2(void);
-
-char *read_cmd(void);
-
 int number_controller(general_t, *info, char *number);
 void bin_exit(general_t *info, char ** arguements);
 
