@@ -1,79 +1,50 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <string.h>
 #include "shell.h"
+/**
+* main - carries out the read, execute then print output loop
+* @ac: argument count
+* @av: argument vector
+* @envp: environment vector
+*
+* Return: 0
+*/
 
-int main(void)
+int main(int ac, char **av, char *envp[])
 {
-        char *cmd;
-
-        do
-        {
-                print_prompt1();
-                cmd = read_cmd();
-
-                if (!cmd)
-                {
-                        exit(EXIT_SUCCESS);
-                }
-                if (cmd [0] == '\0' || strcmp(cmd, "\n") == 0)
-                {
-                        free(cmd);
-                        break;
-                }
-                printf("%s\n", cmd);
-                free(cmd);
-        }
-        while (1);
-        exit(EXIT_SUCCESS);
-}
-
-char *read_cmd(void)
-{
-        char buf[1024];
-        char *ptr = NULL;
-        char ptrlen = 0;
-
-        while (fgets (buf, 1024, stdin))
-        {
-                int buflen = strlen(buf);
-
-                if (!ptr)
-                {
-                        ptr = malloc (buflen + 1);
-                }
-                else
-                {
-                        char *ptr2 = realloc (ptr, ptrlen + buflen +1);
-
-                        if (ptr2)
-                        {
-                                ptr = ptr2;
-                        }
-                        else
-                        {
-                                free(ptr);
-                                ptr = NULL;
-                        }
-                }
-                if (!ptr)
-                {
-                        fprintf(stderr, "error : failed to allocate buffer: %d\n", (errno));
-                        return NULL;
-                }
-                strcpy (ptr + ptrlen, buf);
-                if (buf[buflen-1] == '\n')
-                {
-                        if (buflen == 1 || buf[buflen-2] != '\\')
-                        {
-                                return ptr;
-                        }
-                        ptr[ptrlen+buflen-2] = '\0';
-                        buflen -= 2;
-                        print_prompt2();
-                }
-                ptrlen += buflen;
-        }
-        return ptr;
+	char *line = NULL, *pathcommand = NULL, *path = NULL;
+	size_t bufsize = 0;
+	ssize_t linesize = 0;
+	char **command = NULL, **paths = NULL;
+	(void)envp, (void)av;
+	if (ac < 1)
+		return (-1);
+	signal(SIGINT, handle_signal);
+	while (1)
+	{
+		free_buffers(command);
+		free_buffers(paths);
+		free(pathcommand);
+		prompt_user();
+		linesize = getline(&line, &bufsize, stdin);
+		if (linesize < 0)
+			break;
+		info.ln_count++;
+		if (line[linesize - 1] == '\n')
+			line[linesize - 1] = '\0';
+		command = tokenizer(line);
+		if (command == NULL || *command == NULL || **command == '\0')
+			continue;
+		if (checker(command, line))
+			continue;
+		path = find_path();
+		paths = tokenizer(path);
+		pathcommand = test_path(paths, command[0]);
+		if (!pathcommand)
+			perror(av[0]);
+		else
+			execution(pathcommand, command);
+	}
+	if (linesize < 0 && flags.interactive)
+		write(STDERR_FILENO, "\n", 1);
+	free(line);
+	return (0);
 }
