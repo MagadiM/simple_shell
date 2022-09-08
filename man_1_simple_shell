@@ -1,0 +1,107 @@
+.\" This is the manpage of a simple_shell project for the ALX-Holberton school project. 
+.\"Any errors noted should be directed to the Authors for correction or explanation. 
+.TH simple_shell created "September 8, 2022". 
+
+.SH NAME
+simple_shell/ man_simple_shell
+
+.SH PROLOG
+simple_shell/- This is a command line interpreter which uses efficient interface line commands developed by ALX-Holberton students. It initializes, executes and terminates executable commands. 
+.SH SYSNOPSIS
+The simple_shell should:
+
+>>Display a prompt and wait for the user to type a command. A command line always ends with a new line.
+>>The prompt is displayed again each time a command has been executed.
+>>The command lines are simple, no semicolons, no pipes, no redirections or any other advanced features.
+>>The command lines are made only of one word. No arguments will be passed to programs.
+>>If an executable cannot be found, print an error message and display the prompt again.
+>>Handle errors.
+>>You have to handle the “end of file” condition (Ctrl+D)
+
+.SH DESCRIPTION
+This simple_shell code allows the shell to execcute commands from the standard input, command line string, or any other specified file.
+.SH OPTIONS
+If there are no operands it shall read commands from the standard input. there are no operands and the shell's standard input and standard error are attached to a terminal, the shell is considered to be interactive.
+
+.SH OPERANDS
+Operands && and || will be handled by the shell while in programs
+
+.SH STDIN
+The standard input shall be used if one of the following is true:
+The script executes one or more commands that require input from standard input.
+
+.SH INPUT FILES
+Input files not supported
+
+.SS ENVIROMENT VARIABLES
+*ENV  This variable, when and only when an interactive shell is invoked  and the resulting value shall be used as a pathname of a file containing shell commands to execute in the current environment. The file need not be executable. If the expanded value of ENV is not an absolute pathname, the results are unspecified. ENV shall be ignored if the real and effective user IDs or real and effective group IDs of the process are different.
+.br
+*HOME
+Determine the pathname of the user's home directory.
+.br
+*LANG
+Provide a default value for the internationalization variables that are unset or null.
+.br 
+*PATH
+Establish a string formatted 
+.br
+.IP *PWD
+This variable shall represent an absolute pathname of the current working directory. Assignments to this variable may be ignored.
+ 
+
+.SH ASYNCHRONOUS EVENTS
+ The sh utility shall take the standard action for all signals. If the shell is interactive, SIGINT signals received during command line editing shall be handled as described in the EXTENDED DESCRIPTION, and SIGINT signals received at other times shall be caught but no action performed.
+
+.SH STDOUT
+See \fBSTDERR
+
+.SH STDERR
+Except as otherwise stated (by the descriptions of any invoked utilities or in interactive mode), standard error shall be used only for diagnostic messages.
+
+.SH OUTPUT FILES
+None
+
+.SH APPLICATION USAGE
+k_shell can be executed int two modes:
+
+.B *Interactive mode:
+.br ./hsh
+
+.B *Non interactive mode:
+.br echo "/bin/ls" | ./hsh 
+
+.SH EXAMPLES
+.B 1. Non interactice mode example:
+$ echo "/bin/ls" | ./hsh
+hsh main.c shell.c test_ls_2
+$
+$ cat test_ls_2
+/bin/ls
+/bin/ls
+$
+$ cat test_ls_2 | ./hsh
+hsh main.c shell.c test_ls_2
+hsh main.c shell.c test_ls_2
+$
+
+2. Interactice mode example:
+$ ./hsh
+($) /bin/ls
+hsh main.c shell.c
+($)
+($) exit
+$
+
+.SH FUTURE DIRECTIONS
+None
+
+.SH SEE ALSO 
+chdir(2), close (2), closedir(2), execve(2), exit(3), _exit(2), fflush(3), fork(2), free(3), getcwd(3), getline(3) 
+malloc(3), open(2), opendir(3), perror(3), read(2), readdir(3), signal(2), stat(2), lstat(2), fstat(2) 
+strtok(3), wait(2), write(2).
+
+.SH AUTHORS
+.Millicent Magadi  <milliemagadi4@gmail.com>
+.br
+.Allan Odhiambo  <oluallano@gmail.com>
+.br
