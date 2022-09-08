@@ -1,0 +1,4 @@
+unsetenv
+Removes NAME from defined environment variables.
+
+Returns success unless NAME not a valid alias

@@ -1,0 +1,4 @@
+setenv
+sets the environment variables
+
+Exits successfully, otherwise error occurs
