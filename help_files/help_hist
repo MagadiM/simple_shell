@@ -1,0 +1,5 @@
+history: history
+Displays the history list
+Also displays the line numbers and the prefix of each modified number
+
+Returns successfully unless an invalif option is entered then error occurs.
