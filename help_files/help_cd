@@ -1,9 +1,0 @@
-cd 
-Change to a working shell directory.
-
-DIR is the default value of the simple shell variable.
-Search path is defined by the variable CDPATH.
-
-Exit Status:
-Returns 0 if the directory changes. 
--P return $PWD and return non-zero in other cases. 

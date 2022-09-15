@@ -1,5 +1,0 @@
-help
--provides information on the builtin commands
-Display comes with brief summaries, specified patterns, and list of help topics.
-
-Returns successfully unless PATTERN is not found. 
