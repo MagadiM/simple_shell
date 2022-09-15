@@ -1,7 +1,7 @@
-#ALX simple_shell Project 'Team project'
+ALX simple_shell Project 'Team project'
 
-##Requirements
-##General
+Requirements
+General
 Allowed editors: vi, vim, emacs
 All your files will be compiled on Ubuntu 20.04 LTS using gcc, using the options -Wall -Werror -Wextra -pedantic -std=gnu89
 All your files should end with a new line
@@ -15,9 +15,9 @@ Write a README with the description of your project
 You should have an AUTHORS file at the root of your repository, listing all individuals having contributed content to the repository. Format, see Docker
 
 
-#Write a UNIX command line interpreter.
+Write a UNIX command line interpreter.
 
-##Usage: simple_shell
+Usage: simple_shell
 Your Shell should:
 
 Display a prompt and wait for the user to type a command. A command line always ends with a new line.
