@@ -1,1 +1,1 @@
-simple shell roject
+SIMPLE SHELL PROJECT
